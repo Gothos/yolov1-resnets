@@ -95,7 +95,7 @@ class Bottleneck_block(nn.Module):
             return F.max_pool2d(x,2,2)
         else:
             return x
-        
+ # Sub_block containing a few identity blocks with a bottleneck block at the end
 class ResNet_Sub_Block(nn.Module):
     def __init__(self,conv_in,conv_out,no_identity,kernel_size,activation='gelu'):
         super().__init__()
@@ -107,6 +107,7 @@ class ResNet_Sub_Block(nn.Module):
             x=id_block(x)
         return self.bottleneck(x)
     
+ # Complete ResNet  
 class ResNet(nn.Module):
     def __init__(self,out_channels:int,channel_sizes:list,block_sizes:list,kernel_sizes: list):
         # Ensure number of residual_sub_blocks equals number of kernel_sizes
@@ -125,6 +126,7 @@ class ResNet(nn.Module):
             x=sub_block(x)
         return x
     
+    # Simple Multi-Layer Perceptron
 class MLP(nn.Module):
     def __init__(self,in_no,out_no,activation='gelu', layer_sizes:list =[]):
         super().__init__()
@@ -156,10 +158,10 @@ class MLP(nn.Module):
             raise Unsupported_Activation(activation)
     def forward(self, input):
         x=input
-        for layer in self.layers:
+        for layer in self.layers[:-1]:
             x=layer(x)
             x=self.activ(x)
-        return x
+        return self.layers[-1](x)
     
 class YOLOmodel(nn.Module):
     def __init__(self,feature_backbone,num_divisions,num_bounding_boxes,num_classes):
